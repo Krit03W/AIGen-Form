@@ -10,14 +10,14 @@
         h1 { color: #4a90e2; text-align: center; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
         p.subtitle { text-align: center; color: #666; margin-bottom: 25px; }
         .input-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; cursor: pointer; }
         input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
         input:focus { border-color: #4a90e2; outline: none; }
         button#submitBtn { width: 100%; padding: 15px; background: #4a90e2; color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; transition: 0.3s; margin-top: 10px; font-weight: bold; }
         button#submitBtn:hover { background: #357abd; }
         button#submitBtn:disabled { background: #ccc; cursor: not-allowed; }
         
-        /* พื้นที่แสดงผล Result Area (ใหม่) */
+        /* พื้นที่แสดงผล Result Area */
         #result-area { margin-top: 25px; display: none; padding: 20px; background: #f8fafc; border-radius: 15px; border: 1px solid #e2e8f0; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .prompt-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -28,7 +28,7 @@
         .copy-btn:hover { background: #27ae60; }
         .copy-info-text { font-size: 12px; color: #666; font-style: italic; }
 
-        /* ข้อความแจ้งสถานะ (ใหม่) */
+        /* ข้อความแจ้งสถานะ */
         #status { text-align: center; margin-top: 15px; font-weight: bold; display: none; padding: 10px; border-radius: 8px; }
         .loading { background-color: #fef3c7; color: #b45309; }
         .success { background-color: #d1fae5; color: #065f46; }
@@ -43,23 +43,23 @@
 
     <form id="robotForm" onsubmit="return false;">
         <div class="input-group">
-            <label>1. Robot Name</label>
-            <input type="text" id="name" placeholder="e.g., HBB-01" required>
+            <label for="robotName">1. Robot Name</label>
+            <input type="text" id="robotName" placeholder="e.g., HBB-01" required>
         </div>
         <div class="input-group">
-            <label>2. Ability / Skills</label>
+            <label for="ability">2. Ability / Skills</label>
             <input type="text" id="ability" placeholder="e.g., Teaching math, Solving puzzles" required>
         </div>
         <div class="input-group">
-            <label>3. Identity / Personality</label>
+            <label for="identity">3. Identity / Personality</label>
             <input type="text" id="identity" placeholder="e.g., Kind, Creative, Helpful" required>
         </div>
         <div class="input-group">
-            <label>4. Robot Rules</label>
+            <label for="rule">4. Robot Rules</label>
             <input type="text" id="rule" placeholder="e.g., Explain step-by-step, Never tell a lie" required>
         </div>
         <div class="input-group">
-            <label>5. Mission (Help World)</label>
+            <label for="helpWorld">5. Mission (Help World)</label>
             <input type="text" id="helpWorld" placeholder="e.g., Make learning fun for everyone" required>
         </div>
 
@@ -99,14 +99,14 @@
         }
 
         const data = {
-            name: document.getElementById('name').value,
+            name: document.getElementById('robotName').value,
             ability: document.getElementById('ability').value,
             identity: document.getElementById('identity').value,
             rule: document.getElementById('rule').value,
             helpWorld: document.getElementById('helpWorld').value
         };
 
-        // สร้าง Full Prompt (V1 ตามที่คุณต้องการ)
+        // สร้าง Full Prompt
         data.fullPrompt = `A high-quality vertical trading card design of a robot named ${data.name}. The robot has a ${data.identity} personality and appearance. It features a sleek, futuristic body with ${data.ability} integrated into its design. The card includes a decorative header with the name, and a "Skills & Mission" section at the bottom listing: ${data.ability}, ${data.rule}, and its mission to ${data.helpWorld}. Style: Vibrant 3D cartoon, Pixar-inspired, soft cinematic lighting, colorful holographic borders, clean UI elements, 8k resolution, detailed background matching the robot's theme.`;
 
         // 1. จัดการ UI
@@ -114,11 +114,9 @@
         status.style.display = 'block';
         status.className = 'loading';
         status.innerText = "Saving your data to Google Sheets... 🚀";
-        resultArea.style.display = 'none'; // ซ่อนพื้นที่ผลลัพธ์เก่าก่อน
+        resultArea.style.display = 'none';
 
-        // 2. ส่งข้อมูลลง Google Sheet (แบบแยก thread)
-        // เราจะไม่รอผลลัพธ์ (fetch) อย่างสมบูรณ์ เพราะ "no-cors" ทำให้เราตรวจสอบไม่ค่อยได้
-        // แต่เราจะส่งข้อมูลไป แล้วทำขั้นตอนแสดง Prompt ต่อเลยเพื่อความลื่นไหล
+        // 2. ส่งข้อมูลลง Google Sheet
         fetch(WEB_APP_URL, {
             method: "POST",
             mode: "no-cors",
@@ -126,7 +124,7 @@
             body: JSON.stringify(data)
         }).catch(err => console.error("Sheets Error:", err));
 
-        // 3. แสดง Prompt บนหน้าเว็บทันที (เพื่อให้เด็กเห็นเร็วที่สุด)
+        // 3. แสดง Prompt บนหน้าเว็บทันที
         setTimeout(() => {
             finalPromptBox.innerText = data.fullPrompt;
             resultArea.style.display = 'block';
@@ -134,14 +132,14 @@
             status.innerText = "✅ Data saved and your prompt is ready!";
             btn.innerText = "Generate Another Card?";
             btn.disabled = false;
-            btn.setAttribute("onclick", "location.reload()"); // ให้รีโหลดเพื่อเจนใหม่
+            btn.setAttribute("onclick", "location.reload()");
             
             // เลื่อนหน้าจอลงมาที่ผลลัพธ์
             resultArea.scrollIntoView({ behavior: 'smooth' });
-        }, 1500); // ดีเลย์นิดหน่อยให้ความรู้สึกเหมือนกำลังบันทึก
+        }, 1500);
     }
 
-    // ฟังก์ชันก๊อปปี้แบบง่าย (ใหม่)
+    // ฟังก์ชันก๊อปปี้
     function copyPrompt() {
         const promptText = document.getElementById('finalPrompt').innerText;
         navigator.clipboard.writeText(promptText).then(() => {
